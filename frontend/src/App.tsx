@@ -6,6 +6,7 @@ import HomePage from "./pages/HomePage";
 import CalendarPage from "./pages/CalendarPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import CoachPage from "./pages/CoachPage";
+import ChatPage from "./pages/ChatPage";
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
             <Route path="/calendar" element={<CalendarPage />} />
             <Route path="/analytics" element={<AnalyticsPage />} />
             <Route path="/coach" element={<CoachPage />} />
+            <Route path="/chat" element={<ChatPage />} />
           </Route>
         </Routes>
       </AppProvider>

@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom';
-import { Calendar, BarChart2, Sparkles, Home } from 'lucide-react';
+import { Calendar, BarChart2, Sparkles, Home, MessageCircle } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const navItems = [
@@ -7,6 +7,7 @@ const navItems = [
   { to: '/calendar', icon: Calendar, label: 'Calendar' },
   { to: '/analytics', icon: BarChart2, label: 'Analytics' },
   { to: '/coach', icon: Sparkles, label: 'Coach' },
+  { to: '/chat', icon: MessageCircle, label: 'Chat' },
 ];
 
 export default function Layout() {

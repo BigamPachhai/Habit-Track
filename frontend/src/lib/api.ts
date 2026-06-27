@@ -55,5 +55,7 @@ export const api = {
     monthlyReview: () => req<{ message: string }>('/ai/monthly'),
     twentiesSuggestions: () => req<{ message: string }>('/ai/twenties'),
     streakRisk: () => req<{ message: string }>('/ai/streak-risk'),
+    chat: (messages: { role: 'user' | 'assistant'; content: string }[]) =>
+      req<{ message: string }>('/ai/chat', { method: 'POST', body: JSON.stringify({ messages }) }),
   },
 };
