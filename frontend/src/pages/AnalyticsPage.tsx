@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-  AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, Cell
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer,
 } from 'recharts';
 import { api } from '../lib/api';
 import { useApp } from '../context/AppContext';
@@ -142,92 +142,76 @@ export default function AnalyticsPage() {
           </ResponsiveContainer>
         </motion.div>
 
-        {/* Monthly perfect days chart */}
+        {/* Monthly perfect days — pill capsule style */}
         {monthlyChartData.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="bg-white/5 border border-white/5 rounded-2xl p-4 mb-4"
+            className="bg-white dark:bg-white/5 border border-warm-200 dark:border-white/5 rounded-2xl p-4 mb-4 shadow-sm dark:shadow-none"
           >
-            <h3 className="text-white/60 text-sm font-medium mb-4">Monthly perfect days</h3>
-            <ResponsiveContainer width="100%" height={140}>
-              <BarChart data={monthlyChartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.grid} />
-                <XAxis
-                  dataKey="month"
-                  tick={{ fill: CHART_COLORS.text, fontSize: 10 }}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <YAxis
-                  tick={{ fill: CHART_COLORS.text, fontSize: 10 }}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <Tooltip
-                  content={({ active, payload, label }) => {
-                    if (!active || !payload?.length) return null;
-                    return (
-                      <div className="bg-dark-800 border border-white/10 rounded-xl px-3 py-2">
-                        <p className="text-white/50 text-xs mb-1">{label}</p>
-                        <p className="text-brand-400 font-semibold text-sm">{payload[0].value} perfect days</p>
-                      </div>
-                    );
-                  }}
-                />
-                <Bar dataKey="perfect" radius={[4, 4, 0, 0]}>
-                  {monthlyChartData.map((_, i) => (
-                    <Cell
-                      key={i}
-                      fill={i === monthlyChartData.length - 1 ? CHART_COLORS.primary : 'rgba(59,130,246,0.4)'}
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+            <h3 className="text-stone-500 dark:text-white/60 text-sm font-medium mb-5">Monthly perfect days</h3>
+            <div className="flex items-end gap-2 h-32">
+              {monthlyChartData.map((d, i) => {
+                const max = Math.max(...monthlyChartData.map((x) => x.perfect), 1);
+                const heightPct = Math.max((d.perfect / max) * 100, 8);
+                const isLast = i === monthlyChartData.length - 1;
+                return (
+                  <div key={d.month} className="flex-1 flex flex-col items-center gap-1.5">
+                    <span className="text-[9px] text-stone-400 dark:text-white/40 font-medium">{d.perfect || ''}</span>
+                    <div className="w-full relative flex items-end" style={{ height: '96px' }}>
+                      <div
+                        className="w-full rounded-full transition-all duration-500"
+                        style={{
+                          height: `${heightPct}%`,
+                          background: isLast
+                            ? 'linear-gradient(to top, #ea6c0a, #f97316)'
+                            : 'rgba(249,115,22,0.25)',
+                        }}
+                      />
+                    </div>
+                    <span className="text-[9px] text-stone-300 dark:text-white/30">{d.month}</span>
+                  </div>
+                );
+              })}
+            </div>
           </motion.div>
         )}
 
-        {/* Habit breakdown */}
+        {/* Habit breakdown — pill bars */}
         {data.habitBreakdown.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="bg-white/5 border border-white/5 rounded-2xl p-4 mb-4"
+            className="bg-white dark:bg-white/5 border border-warm-200 dark:border-white/5 rounded-2xl p-4 mb-4 shadow-sm dark:shadow-none"
           >
-            <h3 className="text-white/60 text-sm font-medium mb-4">Habit breakdown</h3>
-            <ResponsiveContainer width="100%" height={Math.max(data.habitBreakdown.length * 40, 120)}>
-              <BarChart
-                data={data.habitBreakdown}
-                layout="vertical"
-                margin={{ top: 0, right: 5, left: 10, bottom: 0 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.grid} horizontal={false} />
-                <XAxis type="number" tick={{ fill: CHART_COLORS.text, fontSize: 10 }} tickLine={false} axisLine={false} />
-                <YAxis
-                  type="category"
-                  dataKey="name"
-                  tick={{ fill: 'rgba(255,255,255,0.7)', fontSize: 12 }}
-                  tickLine={false}
-                  axisLine={false}
-                  width={80}
-                />
-                <Tooltip
-                  content={({ active, payload, label }) => {
-                    if (!active || !payload?.length) return null;
-                    return (
-                      <div className="bg-dark-800 border border-white/10 rounded-xl px-3 py-2 shadow-xl">
-                        <p className="text-white/50 text-xs mb-1">{label}</p>
-                        <p className="text-brand-400 font-semibold text-sm">{payload[0].value} times</p>
+            <h3 className="text-stone-500 dark:text-white/60 text-sm font-medium mb-4">Habit breakdown</h3>
+            <div className="space-y-3">
+              {(() => {
+                const maxCount = Math.max(...data.habitBreakdown.map((h) => h.count), 1);
+                return data.habitBreakdown.map((h, i) => (
+                  <div key={h.name} className="flex items-center gap-3">
+                    <div className="w-6 text-center text-base flex-shrink-0">{h.icon}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-stone-700 dark:text-white/80 text-xs font-medium truncate">{h.name}</span>
+                        <span className="text-stone-400 dark:text-white/40 text-xs ml-2 flex-shrink-0">{Math.round((h.count / maxCount) * 100)}%</span>
                       </div>
-                    );
-                  }}
-                />
-                <Bar dataKey="count" radius={[0, 4, 4, 0]} fill={CHART_COLORS.primary} />
-              </BarChart>
-            </ResponsiveContainer>
+                      <div className="h-2.5 bg-warm-100 dark:bg-white/8 rounded-full overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${(h.count / maxCount) * 100}%` }}
+                          transition={{ duration: 0.6, delay: 0.4 + i * 0.05 }}
+                          className="h-full rounded-full"
+                          style={{ background: HABIT_BAR_COLORS[i % HABIT_BAR_COLORS.length] }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ));
+              })()}
+            </div>
           </motion.div>
         )}
 
@@ -239,21 +223,21 @@ export default function AnalyticsPage() {
           className="grid grid-cols-2 gap-3 mb-4"
         >
           {data.mostCompleted && (
-            <div className="bg-white/5 border border-white/5 rounded-2xl p-4">
+            <div className="bg-white dark:bg-white/5 border border-warm-200 dark:border-white/5 rounded-2xl p-4 shadow-sm dark:shadow-none">
               <div className="text-2xl mb-2">{data.mostCompleted.icon}</div>
-              <div className="text-white text-sm font-medium truncate">{data.mostCompleted.name}</div>
-              <div className="text-white/40 text-xs mt-0.5">Most consistent</div>
-              <div className="text-brand-400 text-xs font-medium mt-1">{data.mostCompleted.count} times</div>
+              <div className="text-stone-800 dark:text-white text-sm font-medium truncate">{data.mostCompleted.name}</div>
+              <div className="text-stone-400 dark:text-white/40 text-xs mt-0.5">Most consistent</div>
+              <div className="text-brand-500 dark:text-brand-400 text-xs font-medium mt-1">{data.mostCompleted.count} times</div>
             </div>
           )}
           {data.bestMonth && (
-            <div className="bg-white/5 border border-white/5 rounded-2xl p-4">
+            <div className="bg-white dark:bg-white/5 border border-warm-200 dark:border-white/5 rounded-2xl p-4 shadow-sm dark:shadow-none">
               <div className="text-2xl mb-2">🏆</div>
-              <div className="text-white text-sm font-medium">
+              <div className="text-stone-800 dark:text-white text-sm font-medium">
                 {new Date(data.bestMonth + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
               </div>
-              <div className="text-white/40 text-xs mt-0.5">Best month</div>
-              <div className="text-brand-400 text-xs font-medium mt-1">
+              <div className="text-stone-400 dark:text-white/40 text-xs mt-0.5">Best month</div>
+              <div className="text-brand-500 dark:text-brand-400 text-xs font-medium mt-1">
                 {data.monthlyData[data.bestMonth]?.perfect} perfect days
               </div>
             </div>
@@ -266,12 +250,12 @@ export default function AnalyticsPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
-            className="bg-white/5 border border-white/5 rounded-2xl p-4"
+            className="bg-white dark:bg-white/5 border border-warm-200 dark:border-white/5 rounded-2xl p-4 shadow-sm dark:shadow-none"
           >
-            <h3 className="text-white/60 text-sm font-medium mb-3">🏆 Perfect months</h3>
+            <h3 className="text-stone-500 dark:text-white/60 text-sm font-medium mb-3">🏆 Perfect months</h3>
             <div className="flex flex-wrap gap-2">
               {data.perfectMonths.map((m) => (
-                <div key={m} className="bg-brand-600/20 text-brand-300 text-xs font-medium px-3 py-1 rounded-full">
+                <div key={m} className="bg-brand-100 dark:bg-brand-600/20 text-brand-600 dark:text-brand-300 text-xs font-medium px-3 py-1 rounded-full">
                   {new Date(m + '-01').toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
                 </div>
               ))}
