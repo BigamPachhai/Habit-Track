@@ -9,6 +9,7 @@ import habitsRouter from './routes/habits';
 import logsRouter from './routes/logs';
 import statsRouter from './routes/stats';
 import tipRouter from './routes/tip';
+import aiRouter from './routes/ai';
 
 async function ensureTables() {
   const sql = neon(process.env.DATABASE_URL!);
@@ -53,6 +54,7 @@ app.use('/api/habits', habitsRouter);
 app.use('/api/logs', logsRouter);
 app.use('/api/stats', statsRouter);
 app.use('/api/tip', tipRouter);
+app.use('/api/ai', aiRouter);
 app.get('/api/health', (_, res) => res.json({ status: 'ok' }));
 
 const PORT = process.env.PORT || 3001;

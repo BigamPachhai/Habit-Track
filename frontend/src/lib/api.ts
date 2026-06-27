@@ -48,4 +48,12 @@ export const api = {
   tip: {
     get: () => req<{ emoji: string; rule: string }>('/tip'),
   },
+  ai: {
+    dailyMotivation: (streak: number, longest: number) =>
+      req<{ message: string }>(`/ai/daily?streak=${streak}&longest=${longest}`),
+    weeklySummary: () => req<{ message: string }>('/ai/weekly'),
+    monthlyReview: () => req<{ message: string }>('/ai/monthly'),
+    twentiesSuggestions: () => req<{ message: string }>('/ai/twenties'),
+    streakRisk: () => req<{ message: string }>('/ai/streak-risk'),
+  },
 };

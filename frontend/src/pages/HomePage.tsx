@@ -23,9 +23,10 @@ function getCachedTip(): { emoji: string; rule: string } | null {
     const stored = localStorage.getItem('twenties_rule');
     if (stored) {
       const { emoji, rule, timestamp } = JSON.parse(stored);
-      if (Date.now() - timestamp < RULE_TTL_MS) return { emoji, rule };
+      if (Date.now() - timestamp < RULE_TTL_MS && emoji && rule) return { emoji, rule };
     }
   } catch {}
+  localStorage.removeItem('twenties_rule');
   return null;
 }
 
@@ -130,8 +131,8 @@ export default function HomePage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showMilestone, setShowMilestone] = useState(false);
   const [milestoneDay, setMilestoneDay] = useState(0);
-  const [tip, setTip] = useState<{ emoji: string; rule: string }>(
-    () => getCachedTip() ?? { emoji: '🎯', rule: 'Loading your daily rule…' }
+  const [tip, setTip] = useState<{ emoji: string; rule: string } | null>(
+    () => getCachedTip()
   );
   const celebratedRef = useRef<Set<number>>(new Set());
 
@@ -292,8 +293,17 @@ export default function HomePage() {
           transition={{ delay: 0.1 }}
           className="bg-white dark:bg-[#161b22] border border-warm-200 dark:border-white/[0.06] rounded-3xl px-4 py-3 flex items-center gap-3 shadow-sm dark:shadow-black/20"
         >
-          <span className="text-xl flex-shrink-0">{tip.emoji}</span>
-          <p className="text-stone-600 dark:text-[#c9d1d9] text-sm leading-snug">{tip.rule}</p>
+          {tip ? (
+            <>
+              <span className="text-xl flex-shrink-0">{tip.emoji}</span>
+              <p className="text-stone-600 dark:text-[#c9d1d9] text-sm leading-snug">{tip.rule}</p>
+            </>
+          ) : (
+            <div className="flex items-center gap-3 w-full">
+              <div className="w-7 h-7 rounded-full bg-warm-100 dark:bg-white/[0.06] animate-pulse flex-shrink-0" />
+              <div className="h-4 bg-warm-100 dark:bg-white/[0.06] rounded-full animate-pulse flex-1" />
+            </div>
+          )}
         </motion.div>
 
         {/* SECTION 3 — Habits task board */}

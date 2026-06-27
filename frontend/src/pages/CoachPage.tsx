@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, ChevronRight, AlertTriangle, Calendar, BarChart2, Flame, Zap } from 'lucide-react';
 import { api } from '../lib/api';
@@ -80,6 +80,33 @@ const ACTIONS: CoachAction[] = [
   },
 ];
 
+function renderMarkdown(text: string): React.ReactNode[] {
+  return text.split('\n').map((line, i) => {
+    const parts: React.ReactNode[] = [];
+    let remaining = line;
+    let key = 0;
+    while (remaining.length > 0) {
+      const boldMatch = remaining.match(/\*\*(.+?)\*\*/);
+      const italicMatch = remaining.match(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/);
+      const firstBold = boldMatch?.index ?? Infinity;
+      const firstItalic = italicMatch?.index ?? Infinity;
+      if (boldMatch && firstBold <= firstItalic) {
+        if (firstBold > 0) parts.push(remaining.slice(0, firstBold));
+        parts.push(<strong key={key++}>{boldMatch[1]}</strong>);
+        remaining = remaining.slice(firstBold + boldMatch[0].length);
+      } else if (italicMatch && firstItalic < firstBold) {
+        if (firstItalic > 0) parts.push(remaining.slice(0, firstItalic));
+        parts.push(<em key={key++}>{italicMatch[1]}</em>);
+        remaining = remaining.slice(firstItalic + italicMatch[0].length);
+      } else {
+        parts.push(remaining);
+        break;
+      }
+    }
+    return <p key={i} className={i > 0 ? 'mt-2' : ''}>{parts}</p>;
+  });
+}
+
 function MessageDisplay({ message }: { message: string }) {
   return (
     <motion.div
@@ -91,7 +118,7 @@ function MessageDisplay({ message }: { message: string }) {
         <Sparkles size={11} className="text-brand-500 dark:text-brand-400" />
         <span className="text-brand-500 dark:text-brand-400 text-xs font-medium">AI Coach</span>
       </div>
-      <div className="text-stone-700 dark:text-[#c9d1d9] text-sm leading-relaxed whitespace-pre-wrap">{message}</div>
+      <div className="text-stone-700 dark:text-[#c9d1d9] text-sm leading-relaxed">{renderMarkdown(message)}</div>
     </motion.div>
   );
 }
