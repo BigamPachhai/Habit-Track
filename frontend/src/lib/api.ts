@@ -45,19 +45,7 @@ export const api = {
       req<Record<string, CalendarDayData>>(`/stats/calendar/${year}/${month}`),
     analytics: () => req<AnalyticsData>('/stats/analytics'),
   },
-  ai: {
-    weeklySummary: () =>
-      req<{ message: string }>('/ai/weekly-summary', { method: 'POST' }),
-    monthlyReview: () =>
-      req<{ message: string }>('/ai/monthly-review', { method: 'POST' }),
-    dailyMotivation: (currentStreak: number, longestStreak: number) =>
-      req<{ message: string }>('/ai/daily-motivation', {
-        method: 'POST',
-        body: JSON.stringify({ currentStreak, longestStreak }),
-      }),
-    streakRisk: () =>
-      req<{ message: string }>('/ai/streak-risk', { method: 'POST' }),
-    twentiesSuggestions: () =>
-      req<{ message: string }>('/ai/twenties-suggestions', { method: 'POST' }),
+  tip: {
+    get: () => req<{ emoji: string; rule: string }>('/tip'),
   },
 };

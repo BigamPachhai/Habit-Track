@@ -1,7 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom';
-import { Calendar, BarChart2, Sparkles, Sun, Moon, Home } from 'lucide-react';
+import { Calendar, BarChart2, Sparkles, Home } from 'lucide-react';
 import { cn } from '../lib/utils';
-import { useTheme } from '../context/ThemeContext';
 
 const navItems = [
   { to: '/', icon: Home, label: 'Home' },
@@ -11,16 +10,14 @@ const navItems = [
 ];
 
 export default function Layout() {
-  const { theme, toggleTheme } = useTheme();
-
   return (
-    <div className="min-h-screen bg-warm-50 dark:bg-dark-950 text-stone-900 dark:text-white flex flex-col">
+    <div className="min-h-screen bg-warm-50 dark:bg-[#0d1117] text-stone-900 dark:text-[#e6edf3] flex flex-col">
       <main className="flex-1 pb-20 md:pb-0 md:pl-20">
         <Outlet />
       </main>
 
       {/* Mobile bottom nav */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 dark:bg-dark-900/95 backdrop-blur-md border-t border-warm-200 dark:border-white/5 md:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-[#161b22]/95 backdrop-blur-md border-t border-warm-200 dark:border-white/[0.07] md:hidden">
         <div className="flex items-center justify-around px-2 py-2">
           {navItems.map(({ to, icon: Icon, label }) => (
             <NavLink
@@ -32,7 +29,7 @@ export default function Layout() {
                   'flex flex-col items-center gap-1 px-3 py-2 rounded-2xl transition-all duration-200',
                   isActive
                     ? 'text-brand-500 dark:text-brand-400'
-                    : 'text-stone-400 dark:text-white/40 hover:text-stone-700 dark:hover:text-white/70'
+                    : 'text-stone-400 dark:text-[#8b949e] hover:text-stone-700 dark:hover:text-[#c9d1d9]'
                 )
               }
             >
@@ -48,7 +45,7 @@ export default function Layout() {
       </nav>
 
       {/* Desktop side nav */}
-      <nav className="hidden md:flex fixed left-0 top-0 bottom-0 w-20 bg-white/80 dark:bg-dark-900/95 backdrop-blur-md border-r border-warm-200 dark:border-white/5 flex-col items-center py-6 gap-2 z-50">
+      <nav className="hidden md:flex fixed left-0 top-0 bottom-0 w-20 bg-white/90 dark:bg-[#161b22] backdrop-blur-md border-r border-warm-200 dark:border-white/[0.07] flex-col items-center py-6 gap-2 z-50">
         <div className="mb-6">
           <div className="w-10 h-10 rounded-2xl bg-brand-500 flex items-center justify-center shadow-lg shadow-brand-500/30">
             <span className="text-lg">🔥</span>
@@ -63,8 +60,8 @@ export default function Layout() {
               cn(
                 'flex flex-col items-center gap-1 w-16 py-3 rounded-2xl transition-all duration-200',
                 isActive
-                  ? 'bg-brand-50 dark:bg-brand-500/15 text-brand-500 dark:text-brand-400'
-                  : 'text-stone-400 dark:text-white/40 hover:text-stone-700 dark:hover:text-white/70 hover:bg-warm-100 dark:hover:bg-white/5'
+                  ? 'bg-brand-50 dark:bg-brand-500/10 text-brand-500 dark:text-brand-400'
+                  : 'text-stone-400 dark:text-[#8b949e] hover:text-stone-700 dark:hover:text-[#c9d1d9] hover:bg-warm-100 dark:hover:bg-white/[0.05]'
               )
             }
           >
@@ -76,27 +73,7 @@ export default function Layout() {
             )}
           </NavLink>
         ))}
-
-        {/* Theme toggle */}
-        <div className="mt-auto">
-          <button
-            onClick={toggleTheme}
-            className="w-10 h-10 rounded-2xl flex items-center justify-center text-stone-400 dark:text-white/40 hover:text-stone-700 dark:hover:text-white hover:bg-warm-100 dark:hover:bg-white/10 transition-all duration-200"
-            title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
-          >
-            {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
-          </button>
-        </div>
       </nav>
-
-      {/* Mobile theme toggle */}
-      <button
-        onClick={toggleTheme}
-        className="fixed top-4 right-4 z-50 md:hidden w-9 h-9 rounded-2xl flex items-center justify-center bg-white dark:bg-dark-800 border border-warm-200 dark:border-white/10 text-stone-500 dark:text-white/50 hover:text-stone-800 dark:hover:text-white shadow-sm transition-all duration-200"
-        title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
-      >
-        {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
-      </button>
     </div>
   );
 }

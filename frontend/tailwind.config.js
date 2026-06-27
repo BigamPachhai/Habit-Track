@@ -26,12 +26,14 @@ export default {
           500: '#a8936f',
         },
         dark: {
-          50: '#f8fafc',
+          50:  '#f8fafc',
           100: '#f1f5f9',
-          800: '#1e293b',
-          850: '#172033',
-          900: '#0f172a',
-          950: '#080f1e',
+          // surface hierarchy for dark mode
+          700: '#1e2433',  // elevated / modal
+          800: '#171d2e',  // card surface
+          850: '#111827',  // nav / sidebar
+          900: '#0d1117',  // page background
+          950: '#080d14',  // deepest background
         },
       },
       fontFamily: {
@@ -53,8 +55,8 @@ export default {
           '100%': { transform: 'translateY(0)', opacity: '1' },
         },
         pulseGlow: {
-          '0%, 100%': { boxShadow: '0 0 0 0 rgba(59, 130, 246, 0.4)' },
-          '50%': { boxShadow: '0 0 0 12px rgba(59, 130, 246, 0)' },
+          '0%, 100%': { boxShadow: '0 0 0 0 rgba(249, 115, 22, 0.4)' },
+          '50%': { boxShadow: '0 0 0 12px rgba(249, 115, 22, 0)' },
         },
         bounceIn: {
           '0%': { transform: 'scale(0.3)', opacity: '0' },

@@ -12,62 +12,86 @@ interface CoachAction {
   icon: React.ReactNode;
   label: string;
   description: string;
-  color: string;
+  bgLight: string;
+  bgDark: string;
+  borderLight: string;
+  borderDark: string;
+  iconColor: string;
   autoLoad?: boolean;
 }
 
 const ACTIONS: CoachAction[] = [
   {
     id: 'daily',
-    icon: <Flame size={18} />,
+    icon: <Flame size={17} />,
     label: 'Daily motivation',
     description: 'Your personalized push for today',
-    color: 'from-orange-50 to-orange-100/50 dark:from-orange-600/20 dark:to-orange-800/10 border-orange-200 dark:border-orange-500/20',
+    bgLight: 'bg-orange-50',
+    bgDark: 'dark:bg-orange-500/[0.07]',
+    borderLight: 'border-orange-200',
+    borderDark: 'dark:border-orange-500/20',
+    iconColor: 'text-orange-500 dark:text-orange-400',
     autoLoad: true,
   },
   {
     id: 'twenties',
-    icon: <Zap size={18} />,
+    icon: <Zap size={17} />,
     label: 'Your 20s: 5 strict fixes',
     description: 'Blunt, no-fluff improvements for your daily life',
-    color: 'from-rose-50 to-rose-100/50 dark:from-rose-600/20 dark:to-rose-800/10 border-rose-200 dark:border-rose-500/20',
+    bgLight: 'bg-rose-50',
+    bgDark: 'dark:bg-rose-500/[0.07]',
+    borderLight: 'border-rose-200',
+    borderDark: 'dark:border-rose-500/20',
+    iconColor: 'text-rose-500 dark:text-rose-400',
     autoLoad: true,
   },
   {
     id: 'risk',
-    icon: <AlertTriangle size={18} />,
+    icon: <AlertTriangle size={17} />,
     label: 'Streak risk analysis',
     description: 'Find out which habits might break your streak',
-    color: 'from-yellow-50 to-yellow-100/50 dark:from-yellow-600/20 dark:to-yellow-800/10 border-yellow-200 dark:border-yellow-500/20',
+    bgLight: 'bg-amber-50',
+    bgDark: 'dark:bg-amber-500/[0.07]',
+    borderLight: 'border-amber-200',
+    borderDark: 'dark:border-amber-500/20',
+    iconColor: 'text-amber-500 dark:text-amber-400',
   },
   {
     id: 'weekly',
-    icon: <Calendar size={18} />,
+    icon: <Calendar size={17} />,
     label: 'Weekly summary',
     description: 'Wins, gaps, and one tip for next week',
-    color: 'from-brand-50 to-brand-100/50 dark:from-brand-600/20 dark:to-brand-800/10 border-brand-200 dark:border-brand-500/20',
+    bgLight: 'bg-brand-50',
+    bgDark: 'dark:bg-brand-500/[0.07]',
+    borderLight: 'border-brand-200',
+    borderDark: 'dark:border-brand-500/20',
+    iconColor: 'text-brand-500 dark:text-brand-400',
   },
   {
     id: 'monthly',
-    icon: <BarChart2 size={18} />,
+    icon: <BarChart2 size={17} />,
     label: 'Monthly review',
     description: 'Deep analysis with goals for next month',
-    color: 'from-purple-50 to-purple-100/50 dark:from-purple-600/20 dark:to-purple-800/10 border-purple-200 dark:border-purple-500/20',
+    bgLight: 'bg-purple-50',
+    bgDark: 'dark:bg-purple-500/[0.07]',
+    borderLight: 'border-purple-200',
+    borderDark: 'dark:border-purple-500/20',
+    iconColor: 'text-purple-500 dark:text-purple-400',
   },
 ];
 
 function MessageDisplay({ message }: { message: string }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white/70 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-4 mt-3"
+      className="mt-3 bg-white/80 dark:bg-white/[0.04] border border-warm-200 dark:border-white/[0.07] rounded-2xl p-4"
     >
       <div className="flex items-center gap-2 mb-2">
-        <Sparkles size={12} className="text-brand-500 dark:text-brand-400" />
+        <Sparkles size={11} className="text-brand-500 dark:text-brand-400" />
         <span className="text-brand-500 dark:text-brand-400 text-xs font-medium">AI Coach</span>
       </div>
-      <div className="text-slate-700 dark:text-white/80 text-sm leading-relaxed whitespace-pre-wrap">{message}</div>
+      <div className="text-stone-700 dark:text-[#c9d1d9] text-sm leading-relaxed whitespace-pre-wrap">{message}</div>
     </motion.div>
   );
 }
@@ -78,7 +102,7 @@ function LoadingDots() {
       {[0, 1, 2].map((i) => (
         <motion.div
           key={i}
-          className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-white/30"
+          className="w-1.5 h-1.5 rounded-full bg-stone-300 dark:bg-[#484f58]"
           animate={{ opacity: [0.3, 1, 0.3] }}
           transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
         />
@@ -122,18 +146,18 @@ export default function CoachPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-dark-950 px-4 py-12 md:py-8">
+    <div className="min-h-screen bg-warm-50 dark:bg-[#0d1117] px-4 py-12 md:py-8">
       <div className="max-w-lg mx-auto">
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-slate-900 dark:text-white font-bold text-2xl flex items-center gap-2">
+          <h1 className="text-stone-900 dark:text-[#e6edf3] font-bold text-2xl flex items-center gap-2">
             <Sparkles size={22} className="text-brand-500 dark:text-brand-400" />
             AI Coach
           </h1>
-          <p className="text-slate-400 dark:text-white/40 text-sm mt-1">Powered by Mistral AI. Analyzes your actual habit data.</p>
+          <p className="text-stone-400 dark:text-[#8b949e] text-sm mt-1">Powered by Mistral AI. Analyzes your actual habit data.</p>
         </motion.div>
 
         <div className="space-y-3">
@@ -141,7 +165,33 @@ export default function CoachPage() {
             const isLoading = loading.has(action.id);
             const result = results[action.id];
             const error = errors[action.id];
-            const isAuto = action.autoLoad;
+
+            const cardClass = cn(
+              'w-full text-left border rounded-2xl p-4 transition-all duration-200',
+              action.bgLight, action.bgDark, action.borderLight, action.borderDark,
+            );
+
+            const content = (
+              <>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={cn('flex-shrink-0', action.iconColor)}>{action.icon}</div>
+                    <div>
+                      <div className="text-stone-800 dark:text-[#e6edf3] font-medium text-sm">{action.label}</div>
+                      <div className="text-stone-400 dark:text-[#8b949e] text-xs mt-0.5">{action.description}</div>
+                    </div>
+                  </div>
+                  {isLoading ? (
+                    <div className="w-4 h-4 border-2 border-stone-300 dark:border-[#484f58] border-t-stone-600 dark:border-t-[#8b949e] rounded-full animate-spin flex-shrink-0 ml-3" />
+                  ) : !result && !action.autoLoad ? (
+                    <ChevronRight size={16} className="text-stone-300 dark:text-[#484f58] flex-shrink-0 ml-3" />
+                  ) : null}
+                </div>
+                {isLoading && <LoadingDots />}
+                {result && <MessageDisplay message={result} />}
+                {error && <p className="text-red-500 dark:text-red-400 text-xs mt-2">{error}</p>}
+              </>
+            );
 
             return (
               <motion.div
@@ -150,61 +200,19 @@ export default function CoachPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.05 + i * 0.05 }}
               >
-                {isAuto ? (
-                  <div className={cn(
-                    'w-full text-left bg-gradient-to-br border rounded-2xl p-4',
-                    action.color
-                  )}>
-                    <div className="flex items-center gap-3">
-                      <div className="text-slate-600 dark:text-white/70">{action.icon}</div>
-                      <div>
-                        <div className="text-slate-800 dark:text-white font-medium text-sm">{action.label}</div>
-                        <div className="text-slate-400 dark:text-white/40 text-xs mt-0.5">{action.description}</div>
-                      </div>
-                      {isLoading && (
-                        <div className="ml-auto w-4 h-4 border-2 border-slate-300 dark:border-white/30 border-t-slate-600 dark:border-t-white/80 rounded-full animate-spin flex-shrink-0" />
-                      )}
-                    </div>
-                    {isLoading && <LoadingDots />}
-                    {result && <MessageDisplay message={result} />}
-                    {error && (
-                      <p className="text-red-500 text-xs mt-2">{error}</p>
-                    )}
-                  </div>
-                ) : (
-                  <div>
+                <AnimatePresence>
+                  {action.autoLoad ? (
+                    <div className={cardClass}>{content}</div>
+                  ) : (
                     <button
                       onClick={() => !result && runAction(action.id)}
-                      disabled={isLoading}
-                      className={cn(
-                        'w-full text-left bg-gradient-to-br border rounded-2xl p-4 transition-all duration-200',
-                        action.color,
-                        isLoading || result
-                          ? 'opacity-100 cursor-default'
-                          : 'hover:brightness-95 dark:hover:brightness-125 active:scale-[0.98]'
-                      )}
+                      disabled={isLoading || !!result}
+                      className={cn(cardClass, !result && !isLoading && 'hover:brightness-[0.97] dark:hover:brightness-110 active:scale-[0.99]')}
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="text-slate-600 dark:text-white/70">{action.icon}</div>
-                          <div>
-                            <div className="text-slate-800 dark:text-white font-medium text-sm">{action.label}</div>
-                            <div className="text-slate-400 dark:text-white/40 text-xs mt-0.5">{action.description}</div>
-                          </div>
-                        </div>
-                        {isLoading ? (
-                          <div className="w-5 h-5 border-2 border-slate-300 dark:border-white/30 border-t-slate-600 dark:border-t-white/80 rounded-full animate-spin flex-shrink-0" />
-                        ) : !result ? (
-                          <ChevronRight size={16} className="text-slate-300 dark:text-white/30 flex-shrink-0" />
-                        ) : null}
-                      </div>
+                      {content}
                     </button>
-                    <AnimatePresence>
-                      {error && <p className="text-red-500 text-xs mt-2 px-1">{error}</p>}
-                      {result && <MessageDisplay message={result} />}
-                    </AnimatePresence>
-                  </div>
-                )}
+                  )}
+                </AnimatePresence>
               </motion.div>
             );
           })}

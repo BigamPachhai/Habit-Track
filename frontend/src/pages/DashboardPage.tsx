@@ -6,6 +6,8 @@ import { useApp } from '../context/AppContext';
 import { getMotivationalMessage, isMilestone, MILESTONE_DAYS } from '../lib/utils';
 import { cn } from '../lib/utils';
 
+const card = 'bg-white dark:bg-[#161b22] border border-warm-200 dark:border-white/[0.07] shadow-sm dark:shadow-none';
+
 interface StatCardProps {
   icon: React.ReactNode;
   label: string;
@@ -24,18 +26,18 @@ function StatCard({ icon, label, value, sub, accent, delay = 0 }: StatCardProps)
       className={cn(
         'rounded-2xl p-4 border',
         accent
-          ? 'bg-brand-50 dark:bg-brand-600/15 border-brand-200 dark:border-brand-500/30'
-          : 'bg-white dark:bg-white/5 border-slate-100 dark:border-white/5 shadow-sm'
+          ? 'bg-brand-50 dark:bg-brand-500/[0.08] border-brand-200 dark:border-brand-500/20'
+          : `${card} rounded-2xl`
       )}
     >
-      <div className={cn('mb-3', accent ? 'text-brand-500 dark:text-brand-400' : 'text-slate-400 dark:text-white/40')}>
+      <div className={cn('mb-3', accent ? 'text-brand-500 dark:text-brand-400' : 'text-stone-400 dark:text-[#8b949e]')}>
         {icon}
       </div>
-      <div className={cn('text-2xl font-bold', accent ? 'text-brand-600 dark:text-brand-300' : 'text-slate-800 dark:text-white')}>
+      <div className={cn('text-2xl font-bold', accent ? 'text-brand-600 dark:text-brand-400' : 'text-stone-800 dark:text-[#e6edf3]')}>
         {value}
       </div>
-      <div className="text-slate-400 dark:text-white/50 text-xs mt-0.5">{label}</div>
-      {sub && <div className="text-slate-300 dark:text-white/30 text-xs mt-1">{sub}</div>}
+      <div className="text-stone-400 dark:text-[#8b949e] text-xs mt-0.5">{label}</div>
+      {sub && <div className="text-stone-300 dark:text-[#484f58] text-xs mt-1">{sub}</div>}
     </motion.div>
   );
 }
@@ -50,16 +52,16 @@ function MilestoneProgress({ current, next }: { current: number; next: number })
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.5 }}
-      className="bg-white dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-2xl p-4 shadow-sm"
+      className={`${card} rounded-2xl p-4`}
     >
       <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2 text-slate-500 dark:text-white/60 text-sm font-medium">
+        <div className="flex items-center gap-2 text-stone-500 dark:text-[#8b949e] text-sm font-medium">
           <Target size={16} />
           Next milestone
         </div>
         <span className="text-brand-500 dark:text-brand-400 font-bold text-sm">{next} days</span>
       </div>
-      <div className="h-2 bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden">
+      <div className="h-2 bg-warm-100 dark:bg-white/[0.06] rounded-full overflow-hidden">
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${Math.min(progress, 100)}%` }}
@@ -67,7 +69,7 @@ function MilestoneProgress({ current, next }: { current: number; next: number })
           className="h-full bg-gradient-to-r from-brand-600 to-brand-400 rounded-full"
         />
       </div>
-      <div className="flex justify-between text-slate-400 dark:text-white/30 text-xs mt-2">
+      <div className="flex justify-between text-stone-400 dark:text-[#8b949e] text-xs mt-2">
         <span>{prev} days</span>
         <span>{current} / {next}</span>
         <span>{next} days</span>
@@ -103,19 +105,14 @@ export default function DashboardPage() {
       celebratedRef.current.add(streak);
       setMilestoneDay(streak);
       setShowMilestone(true);
-      confetti({
-        particleCount: 120,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#3b82f6', '#60a5fa', '#93c5fd', '#ffffff'],
-      });
+      confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 }, colors: ['#f97316', '#fb923c', '#fdba74', '#ffffff'] });
       setTimeout(() => setShowMilestone(false), 4000);
     }
   }, [stats?.currentStreak]);
 
   if (!stats) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-dark-950 flex items-center justify-center">
+      <div className="min-h-screen bg-warm-50 dark:bg-[#0d1117] flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -124,16 +121,16 @@ export default function DashboardPage() {
   const { currentStreak, longestStreak, perfectDaysThisMonth, completionPercentage, totalCompletedDays, totalHabitsCompleted, nextMilestoneDays, nextMilestone } = stats;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-dark-950 px-4 py-12 md:py-8">
+    <div className="min-h-screen bg-warm-50 dark:bg-[#0d1117] px-4 py-12 md:py-8">
       <div className="max-w-lg mx-auto">
-        {/* Milestone celebration */}
+        {/* Milestone celebration toast */}
         <AnimatePresence>
           {showMilestone && (
             <motion.div
               initial={{ opacity: 0, scale: 0.8, y: -20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.8, y: -20 }}
-              className="fixed top-8 left-1/2 -translate-x-1/2 z-50 bg-brand-600 text-white px-6 py-3 rounded-2xl shadow-2xl shadow-brand-600/40 flex items-center gap-3"
+              className="fixed top-8 left-1/2 -translate-x-1/2 z-50 bg-brand-500 text-white px-6 py-3 rounded-2xl shadow-2xl shadow-brand-500/40 flex items-center gap-3"
             >
               <Award size={20} />
               <span className="font-semibold">🎉 {MILESTONE_LABELS[milestoneDay] || `${milestoneDay} days`} achieved!</span>
@@ -142,13 +139,9 @@ export default function DashboardPage() {
         </AnimatePresence>
 
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <h1 className="text-slate-900 dark:text-white font-bold text-2xl">Dashboard</h1>
-          <p className="text-slate-400 dark:text-white/40 text-sm mt-1">
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+          <h1 className="text-stone-900 dark:text-[#e6edf3] font-bold text-2xl">Dashboard</h1>
+          <p className="text-stone-400 dark:text-[#8b949e] text-sm mt-1">
             {getMotivationalMessage(currentStreak, longestStreak)}
           </p>
         </motion.div>
@@ -158,13 +151,13 @@ export default function DashboardPage() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
-          className="bg-gradient-to-br from-brand-50 to-brand-100/50 dark:from-brand-600/20 dark:to-brand-800/10 border border-brand-200 dark:border-brand-500/20 rounded-3xl p-6 mb-4 text-center"
+          className="bg-gradient-to-br from-brand-50 to-brand-100/50 dark:from-brand-500/[0.08] dark:to-transparent border border-brand-200 dark:border-brand-500/20 rounded-3xl p-6 mb-4 text-center"
         >
           <div className="text-5xl mb-2">🔥</div>
-          <div className="text-6xl font-black text-slate-900 dark:text-white mb-1">{currentStreak}</div>
-          <div className="text-brand-600 dark:text-brand-300 font-medium">day streak</div>
+          <div className="text-6xl font-black text-stone-900 dark:text-[#e6edf3] mb-1">{currentStreak}</div>
+          <div className="text-brand-600 dark:text-brand-400 font-medium">day streak</div>
           {currentStreak > 0 && (
-            <div className="mt-3 inline-flex items-center gap-2 bg-brand-100 dark:bg-brand-600/20 px-3 py-1.5 rounded-full">
+            <div className="mt-3 inline-flex items-center gap-2 bg-brand-100 dark:bg-brand-500/[0.10] px-3 py-1.5 rounded-full">
               <span className="text-brand-600 dark:text-brand-400 text-sm">
                 {nextMilestoneDays} day{nextMilestoneDays !== 1 ? 's' : ''} until {nextMilestone}-day milestone
               </span>
@@ -190,9 +183,9 @@ export default function DashboardPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="mt-4 bg-white dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-2xl p-4 shadow-sm"
+          className={`mt-4 ${card} rounded-2xl p-4`}
         >
-          <h3 className="text-slate-500 dark:text-white/60 text-sm font-medium mb-3">Milestones</h3>
+          <h3 className="text-stone-500 dark:text-[#8b949e] text-sm font-medium mb-3">Milestones</h3>
           <div className="flex flex-wrap gap-2">
             {MILESTONE_DAYS.map((m) => (
               <div
@@ -200,8 +193,8 @@ export default function DashboardPage() {
                 className={cn(
                   'px-3 py-1.5 rounded-full text-xs font-medium transition-all',
                   currentStreak >= m
-                    ? 'bg-brand-600 text-white'
-                    : 'bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-white/30 border border-slate-200 dark:border-white/10'
+                    ? 'bg-brand-500 text-white'
+                    : 'bg-warm-100 dark:bg-white/[0.05] text-stone-400 dark:text-[#8b949e] border border-warm-200 dark:border-white/[0.08]'
                 )}
               >
                 {currentStreak >= m ? '✓ ' : ''}{MILESTONE_LABELS[m]}
