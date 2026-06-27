@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence, Reorder } from 'framer-motion';
 import {
-  Plus, GripVertical, Pencil, Trash2, Check, Flame,
+  Plus, GripVertical, Pencil, Trash2, Check,
   Trophy, TrendingUp, Zap, CheckCircle2, Award, Sun, Moon,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
@@ -173,11 +173,31 @@ export default function HomePage() {
   const isCompletedToday = (id: string) => todayLogs.some((l) => l.habitId === id && l.completed);
 
   const handleToggle = async (habitId: string) => {
-    setToggling(habitId);
-    await api.logs.toggle(habitId, todayStr);
-    await loadLogs();
-    await refreshStats();
-    setToggling(null);
+    const wasCompleted = isCompletedToday(habitId);
+    // Optimistic update — flip UI instantly
+    setTodayLogs((prev) => {
+      const existing = prev.find((l) => l.habitId === habitId);
+      if (existing) {
+        return prev.map((l) => l.habitId === habitId ? { ...l, completed: !l.completed } : l);
+      }
+      return [...prev, { habitId, date: todayStr, completed: true } as HabitLog];
+    });
+    setAllLogs((prev) => {
+      const existing = prev.find((l) => l.habitId === habitId && l.date === todayStr);
+      if (existing) {
+        return prev.map((l) => (l.habitId === habitId && l.date === todayStr) ? { ...l, completed: !l.completed } : l);
+      }
+      return [...prev, { habitId, date: todayStr, completed: true } as HabitLog];
+    });
+    // Fire API in background, then sync real data
+    api.logs.toggle(habitId, todayStr)
+      .then(() => Promise.all([loadLogs(), refreshStats()]))
+      .catch(() => {
+        // Revert on failure
+        setTodayLogs((prev) =>
+          prev.map((l) => l.habitId === habitId ? { ...l, completed: wasCompleted } : l)
+        );
+      });
   };
 
   const handleAdd = async (data: { name: string; icon: string; dailyTarget: number }) => {
@@ -250,35 +270,35 @@ export default function HomePage() {
 
           {/* Streak card — light: vivid gradient / dark: rich solid with glow */}
           <div className="bg-gradient-to-br from-brand-500 to-orange-600 dark:from-[#1a1200] dark:to-[#1a0f00] dark:border dark:border-brand-500/20 rounded-3xl p-5 shadow-lg shadow-brand-500/20 dark:shadow-brand-500/10">
-            <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center justify-between mb-4">
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-3xl">🔥</span>
-                  <span className="text-5xl font-black text-white">{streak}</span>
+                  <span className="text-5xl font-black text-white leading-none">{streak}</span>
                 </div>
-                <div className="text-white/80 dark:text-brand-400 text-sm font-medium">day streak</div>
-                <div className="text-white/55 dark:text-[#8b949e] text-xs mt-1">{getMotivationalMessage(streak, longest)}</div>
+                <div className="text-white/85 dark:text-brand-400 text-sm font-semibold">day streak</div>
+                <div className="text-white/60 dark:text-[#8b949e] text-xs mt-0.5 leading-snug">{getMotivationalMessage(streak, longest)}</div>
               </div>
               <div className="text-right">
-                <div className={cn('text-3xl font-black text-white', allDone && 'text-yellow-200 dark:text-brand-300')}>
+                <div className={cn('text-3xl font-black text-white leading-none', allDone && 'text-yellow-200 dark:text-brand-300')}>
                   {completedCount}/{totalCount}
                 </div>
-                <div className="text-white/55 dark:text-[#8b949e] text-xs">today</div>
-                {allDone && <div className="text-yellow-200 dark:text-brand-400 text-xs font-semibold mt-1">✓ Perfect day!</div>}
+                <div className="text-white/60 dark:text-[#8b949e] text-xs mt-0.5">today</div>
+                {allDone && <div className="text-yellow-200 dark:text-brand-400 text-xs font-bold mt-1">✓ Perfect day!</div>}
               </div>
             </div>
 
             <div className="grid grid-cols-3 gap-2">
               {[
-                { icon: <Trophy size={13} />, label: 'Best', value: `${longest}d` },
-                { icon: <TrendingUp size={13} />, label: 'Rate', value: `${stats?.completionPercentage ?? 0}%` },
-                { icon: <Zap size={13} />, label: 'Total', value: stats?.totalHabitsCompleted ?? 0 },
+                { icon: <Trophy size={14} />, label: 'Best', value: `${longest}d` },
+                { icon: <TrendingUp size={14} />, label: 'Rate', value: `${stats?.completionPercentage ?? 0}%` },
+                { icon: <Zap size={14} />, label: 'Total', value: stats?.totalHabitsCompleted ?? 0 },
               ].map((s) => (
-                <div key={s.label} className="bg-white/20 dark:bg-white/[0.05] rounded-2xl px-3 py-2.5 flex items-center gap-2">
-                  <span className="text-white/70 dark:text-brand-400/80">{s.icon}</span>
+                <div key={s.label} className="bg-white/20 dark:bg-white/[0.07] rounded-xl px-3 py-2.5 flex items-center gap-2">
+                  <span className="text-white/75 dark:text-brand-400/80 flex-shrink-0">{s.icon}</span>
                   <div>
-                    <div className="text-white text-sm font-bold">{s.value}</div>
-                    <div className="text-white/60 dark:text-[#8b949e] text-[10px]">{s.label}</div>
+                    <div className="text-white text-base font-bold leading-tight">{s.value}</div>
+                    <div className="text-white/60 dark:text-[#8b949e] text-[11px]">{s.label}</div>
                   </div>
                 </div>
               ))}
@@ -388,66 +408,87 @@ export default function HomePage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: idx * 0.04 }}
                         className={cn(
-                          'flex items-center gap-3 rounded-2xl px-4 py-3 mb-2 transition-all duration-200',
+                          'rounded-2xl mb-3 transition-all duration-200 overflow-hidden',
                           done
-                            ? 'bg-brand-50 dark:bg-brand-500/[0.08] border border-brand-200 dark:border-brand-500/20'
-                            : 'bg-white dark:bg-[#161b22] border border-warm-200 dark:border-white/[0.06] hover:border-warm-300 dark:hover:border-white/[0.10] shadow-sm dark:shadow-black/20'
+                            ? 'bg-gradient-to-r from-brand-50 to-emerald-50 dark:from-brand-500/[0.12] dark:to-emerald-500/[0.06] border border-brand-200 dark:border-brand-500/25 shadow-sm shadow-brand-100 dark:shadow-none'
+                            : 'bg-white dark:bg-[#161b22] border border-warm-200 dark:border-white/[0.08] hover:border-warm-300 dark:hover:border-white/[0.14] shadow-sm dark:shadow-black/30'
                         )}
                       >
-                        <div className="text-warm-300 dark:text-[#484f58] cursor-grab active:cursor-grabbing touch-none flex-shrink-0">
-                          <GripVertical size={14} />
-                        </div>
-
-                        <div className="text-xl flex-shrink-0 w-8 text-center">{habit.icon}</div>
-
-                        <div className="flex-1 min-w-0">
-                          <div className={cn(
-                            'text-sm font-medium truncate leading-tight',
-                            done ? 'text-stone-400 dark:text-[#484f58] line-through' : 'text-stone-800 dark:text-[#e6edf3]'
-                          )}>
-                            {habit.name}
+                        {/* Single row: drag + icon + name/streak + actions */}
+                        <div className="flex items-center gap-3 px-4 py-3.5">
+                          <div className="text-warm-300 dark:text-[#484f58] cursor-grab active:cursor-grabbing touch-none flex-shrink-0">
+                            <GripVertical size={16} />
                           </div>
-                          {habitStreak > 0 && (
-                            <div className="flex items-center gap-1 mt-0.5">
-                              <Flame size={10} className="text-orange-400" />
-                              <span className="text-orange-500 dark:text-orange-400 text-[10px] font-medium">{habitStreak} day streak</span>
+
+                          {/* Icon circle */}
+                          <div className={cn(
+                            'w-11 h-11 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0',
+                            done
+                              ? 'bg-brand-100 dark:bg-brand-500/20'
+                              : 'bg-warm-100 dark:bg-white/[0.06]'
+                          )}>
+                            {habit.icon}
+                          </div>
+
+                          {/* Name only */}
+                          <div className="flex-1 min-w-0">
+                            <div className={cn(
+                              'text-base font-semibold truncate leading-tight',
+                              done ? 'text-stone-400 dark:text-[#484f58] line-through' : 'text-stone-800 dark:text-[#e6edf3]'
+                            )}>
+                              {habit.name}
                             </div>
-                          )}
-                        </div>
+                          </div>
 
-                        <div className="flex items-center gap-1.5 flex-shrink-0">
-                          <button
-                            onClick={() => setEditingId(habit.id)}
-                            className="w-7 h-7 flex items-center justify-center rounded-xl text-stone-300 dark:text-[#484f58] hover:text-stone-500 dark:hover:text-[#8b949e] hover:bg-warm-100 dark:hover:bg-white/[0.06] transition-all"
-                          >
-                            <Pencil size={12} />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(habit.id)}
-                            className="w-7 h-7 flex items-center justify-center rounded-xl text-stone-300 dark:text-[#484f58] hover:text-red-400 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/[0.08] transition-all"
-                          >
-                            <Trash2 size={12} />
-                          </button>
+                          {/* Right side: ghost edit/delete + solid mark-done */}
+                          <div className="flex items-center gap-1 flex-shrink-0">
+                            {/* Snapchat-style fire streak badge */}
+                            {habitStreak > 0 && (
+                              <div className="flex items-center gap-0.5 px-2 py-1 rounded-full bg-orange-50 dark:bg-orange-500/[0.12] mr-1">
+                                <span className="text-sm leading-none">🔥</span>
+                                <span className="text-xs font-bold text-orange-500 dark:text-orange-400 leading-none">{habitStreak}</span>
+                              </div>
+                            )}
+                            {/* Ghost utility buttons — visually quiet */}
+                            <button
+                              onClick={() => setEditingId(habit.id)}
+                              className="w-8 h-8 flex items-center justify-center rounded-lg text-stone-300 dark:text-[#484f58] hover:text-stone-500 dark:hover:text-[#8b949e] hover:bg-warm-100 dark:hover:bg-white/[0.06] transition-all"
+                              aria-label="Edit habit"
+                            >
+                              <Pencil size={14} />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(habit.id)}
+                              className="w-8 h-8 flex items-center justify-center rounded-lg text-stone-300 dark:text-[#484f58] hover:text-red-400 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/[0.08] transition-all"
+                              aria-label="Delete habit"
+                            >
+                              <Trash2 size={14} />
+                            </button>
 
-                          <button
-                            onClick={() => handleToggle(habit.id)}
-                            disabled={toggling === habit.id}
-                            className={cn(
-                              'ml-1 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 border',
-                              done
-                                ? 'bg-brand-100 dark:bg-brand-500/[0.12] border-brand-200 dark:border-brand-500/30 text-brand-600 dark:text-brand-400'
-                                : 'bg-warm-50 dark:bg-white/[0.04] border-warm-200 dark:border-white/[0.07] text-stone-400 dark:text-[#8b949e] hover:bg-brand-50 dark:hover:bg-brand-500/[0.08] hover:border-brand-200 dark:hover:border-brand-500/20 hover:text-brand-600 dark:hover:text-brand-400'
-                            )}
-                          >
-                            {toggling === habit.id ? (
-                              <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />
-                            ) : done ? (
-                              <CheckCircle2 size={13} />
-                            ) : (
-                              <Check size={13} />
-                            )}
-                            <span>{done ? 'Done' : 'Mark done'}</span>
-                          </button>
+                            {/* Divider */}
+                            <div className="w-px h-5 bg-warm-200 dark:bg-white/[0.08] mx-1" />
+
+                            {/* Solid primary action — visually dominant */}
+                            <button
+                              onClick={() => handleToggle(habit.id)}
+                              disabled={toggling === habit.id}
+                              className={cn(
+                                'flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all duration-200 shadow-sm',
+                                done
+                                  ? 'bg-brand-500 text-white shadow-brand-500/30 hover:bg-brand-600'
+                                  : 'bg-stone-900 dark:bg-white text-white dark:text-stone-900 shadow-stone-900/20 dark:shadow-white/10 hover:bg-stone-700 dark:hover:bg-stone-100'
+                              )}
+                            >
+                              {toggling === habit.id ? (
+                                <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                              ) : done ? (
+                                <CheckCircle2 size={14} />
+                              ) : (
+                                <Check size={14} />
+                              )}
+                              <span>{done ? 'Done' : 'Mark done'}</span>
+                            </button>
+                          </div>
                         </div>
                       </motion.div>
                     </Reorder.Item>
